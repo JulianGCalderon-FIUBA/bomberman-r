@@ -1,4 +1,5 @@
-use crate::cell::{Cell, Direction};
+use crate::cell::Cell;
+use crate::direction::Direction;
 
 pub struct Board {
     pub cells: Vec<Vec<Cell>>,
@@ -27,8 +28,8 @@ impl Board {
 
     fn propagate_explosion(
         &mut self,
-        x: usize,
-        y: usize,
+        mut x: usize,
+        mut y: usize,
         range: u8,
         pierce: bool,
         mut direction: Direction,
@@ -37,46 +38,33 @@ impl Board {
             return;
         }
 
-        let (x, y) = match direction {
-            Direction::Up => {
-                if y == 0 {
-                    return;
-                }
-                (x, y - 1)
-            }
-            Direction::Down => {
-                if y == self.cells.len() - 1 {
-                    return;
-                }
-                (x, y + 1)
-            }
-            Direction::Left => {
-                if x == 0 {
-                    return;
-                }
-                (x - 1, y)
-            }
-            Direction::Right => {
-                if x == self.cells[y].len() - 1 {
-                    return;
-                }
-                (x + 1, y)
-            }
+        (x, y) = if let Some((x, y)) = direction.advance(x, y) {
+            (x, y)
+        } else {
+            return;
+        };
+
+        let cell = if let Some(cell) = self.get_cell(y, x) {
+            cell
+        } else {
+            return;
         };
 
         self.explode(x, y);
 
-        if Cell::Wall == self.cells[y][x] {
-            return;
-        } else if Cell::Rock == self.cells[y][x] && !pierce {
+        if Cell::Wall == cell || (Cell::Rock == cell && !pierce) {
             return;
         }
 
-        if let Cell::Detour(detour_direction) = self.cells[y][x] {
+        if let Cell::Detour(detour_direction) = cell {
             direction = detour_direction
         }
 
         self.propagate_explosion(x, y, range - 1, pierce, direction);
+    }
+
+    fn get_cell(&mut self, y: usize, x: usize) -> Option<Cell> {
+        self.cells.get(y).map(|row| row.get(x).cloned()).flatten()
     }
 
     fn explode_enemy(&mut self, x: usize, y: usize, hp: u8) {
