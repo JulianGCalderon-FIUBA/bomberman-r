@@ -71,6 +71,10 @@ impl Game {
 
         Ok(())
     }
+
+    fn board(&self) -> &Board {
+        &self.board
+    }
 }
 
 impl TryFrom<&String> for Game {
