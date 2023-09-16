@@ -9,6 +9,7 @@ fn test_parse(path: &str) {
     let mut content = String::new();
     file.read_to_string(&mut content)
         .expect("Could not read file");
+    let content = content.replace("\r\n", "\n");
 
     let board = Board::try_from(&content).expect("Should be a valid game");
 
