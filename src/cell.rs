@@ -1,4 +1,5 @@
 use crate::direction::Direction;
+use crate::error::Error;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Cell {
@@ -11,30 +12,34 @@ pub enum Cell {
     Empty,
 }
 
-impl From<&[u8]> for Cell {
-    fn from(value: &[u8]) -> Self {
+impl TryFrom<&[u8]> for Cell {
+    type Error = Error;
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         let x = value[0];
         let y = value.get(1).copied();
 
-        match (x, y) {
+        let cell = match (x, y) {
             (b'R', _) => Cell::Rock,
             (b'W', _) => Cell::Wall,
             (b'_', _) => Cell::Empty,
             (b'F', Some(y)) => Cell::Enemy(y - b'0'),
             (b'B', Some(y)) => Cell::Bomb(y - b'0'),
             (b'S', Some(y)) => Cell::PierceBomb(y - b'0'),
-            (b'D', Some(y)) => Cell::Detour(Direction::from(y)),
-            _ => panic!("Invalid cell"),
-        }
+            (b'D', Some(y)) => Cell::Detour(Direction::try_from(y)?),
+            _ => Err(Error::InvalidCell)?,
+        };
+
+        Ok(cell)
     }
 }
 
 impl ToString for Cell {
     fn to_string(&self) -> String {
         match self {
-            Cell::Enemy(y) => format!("F{}", y),
-            Cell::Bomb(y) => format!("B{}", y),
-            Cell::PierceBomb(y) => format!("S{}", y),
+            Cell::Enemy(hp) => format!("F{}", hp),
+            Cell::Bomb(range) => format!("B{}", range),
+            Cell::PierceBomb(range) => format!("S{}", range),
             Cell::Detour(direction) => format!("D{}", direction.to_string()),
             Cell::Rock => "R".to_string(),
             Cell::Wall => "W".to_string(),

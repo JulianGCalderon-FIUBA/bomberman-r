@@ -32,8 +32,8 @@ impl Board {
 
     fn propagate_explosion(
         &mut self,
-        mut position: Position,
-        mut direction: Direction,
+        position: Position,
+        direction: Direction,
         range: u8,
         pierce: bool,
     ) -> Result<(), Error> {
@@ -41,7 +41,7 @@ impl Board {
             return Ok(());
         }
 
-        position = position.advance(direction)?;
+        let position = position.advance(direction)?;
 
         self.explode(position)?;
 
@@ -51,11 +51,13 @@ impl Board {
             return Ok(());
         }
 
-        if let Cell::Detour(detour_direction) = cell {
-            direction = detour_direction
+        if let Cell::Detour(direction) = cell {
+            let _ = self.propagate_explosion(position, direction, range - 1, pierce);
         }
 
-        self.propagate_explosion(position, direction, range - 1, pierce)
+        let _ = self.propagate_explosion(position, direction, range - 1, pierce);
+
+        Ok(())
     }
 
     fn explode_enemy(&mut self, position: Position, mut hp: u8) {
@@ -81,11 +83,21 @@ impl Board {
     }
 }
 
-impl<S: AsRef<str>> From<S> for Board {
-    fn from(s: S) -> Self {
+impl TryFrom<&String> for Board {
+    type Error = Error;
+
+    fn try_from(s: &String) -> Result<Self, Self::Error> {
+        Board::try_from(s.as_str())
+    }
+}
+
+impl TryFrom<&str> for Board {
+    type Error = Error;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
         let mut cells = Vec::new();
 
-        for line in s.as_ref().as_bytes().split(|&b| b == b'\n') {
+        for line in s.as_bytes().split(|&b| b == b'\n') {
             if line.is_empty() {
                 continue;
             }
@@ -93,14 +105,14 @@ impl<S: AsRef<str>> From<S> for Board {
             let mut row = Vec::new();
 
             for ascii_cell in line.split(|&b| b == b' ') {
-                let cell = Cell::from(ascii_cell);
+                let cell = Cell::try_from(ascii_cell)?;
                 row.push(cell);
             }
 
             cells.push(row);
         }
 
-        Board { cells }
+        Ok(Board { cells })
     }
 }
 
