@@ -64,9 +64,9 @@ impl Board {
 
         if let Cell::Detour(new_direction) = cell {
             let _ = self.propagate_explosion(position, new_direction, range - 1, pierce);
+        } else {
+            let _ = self.propagate_explosion(position, direction, range - 1, pierce);
         }
-
-        let _ = self.propagate_explosion(position, direction, range - 1, pierce);
 
         Ok(())
     }
