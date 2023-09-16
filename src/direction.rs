@@ -8,6 +8,17 @@ pub enum Direction {
     Right,
 }
 
+impl Direction {
+    pub fn variants() -> [Direction; 4] {
+        [
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ]
+    }
+}
+
 impl TryFrom<u8> for Direction {
     type Error = Error;
 

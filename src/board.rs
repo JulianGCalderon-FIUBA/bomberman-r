@@ -3,6 +3,8 @@ use crate::direction::Direction;
 use crate::error::Error;
 use crate::position::Position;
 
+const BOMB_DAMAGE: u8 = 2;
+
 pub struct Board {
     pub cells: Vec<Vec<Cell>>,
 }
@@ -12,22 +14,31 @@ impl Board {
         let cell_to_explode = self.get_cell(position)?;
 
         match cell_to_explode {
+            Cell::Enemy(hp) => self.explode_enemy(position, hp),
             Cell::Bomb(range) => self.explode_bomb(position, range, false),
             Cell::PierceBomb(range) => self.explode_bomb(position, range, true),
-            Cell::Enemy(hp) => self.explode_enemy(position, hp),
             _ => (),
         }
 
         Ok(())
     }
 
+    fn explode_enemy(&mut self, position: Position, mut hp: u8) {
+        hp = hp.saturating_sub(BOMB_DAMAGE);
+
+        if hp == 0 {
+            self.set_cell(position, Cell::Empty);
+        } else {
+            self.set_cell(position, Cell::Enemy(hp));
+        }
+    }
+
     fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
         self.set_cell(position, Cell::Empty);
 
-        let _ = self.propagate_explosion(position, Direction::Up, range, pierce);
-        let _ = self.propagate_explosion(position, Direction::Down, range, pierce);
-        let _ = self.propagate_explosion(position, Direction::Left, range, pierce);
-        let _ = self.propagate_explosion(position, Direction::Right, range, pierce);
+        for direction in Direction::variants() {
+            let _ = self.propagate_explosion(position, direction, range, pierce);
+        }
     }
 
     fn propagate_explosion(
@@ -51,23 +62,13 @@ impl Board {
             return Ok(());
         }
 
-        if let Cell::Detour(direction) = cell {
-            let _ = self.propagate_explosion(position, direction, range - 1, pierce);
+        if let Cell::Detour(new_direction) = cell {
+            let _ = self.propagate_explosion(position, new_direction, range - 1, pierce);
         }
 
         let _ = self.propagate_explosion(position, direction, range - 1, pierce);
 
         Ok(())
-    }
-
-    fn explode_enemy(&mut self, position: Position, mut hp: u8) {
-        hp = hp.saturating_sub(2);
-
-        if hp == 0 {
-            self.set_cell(position, Cell::Empty);
-        } else {
-            self.set_cell(position, Cell::Enemy(hp));
-        }
     }
 
     fn get_cell(&mut self, position: Position) -> Result<Cell, Error> {
