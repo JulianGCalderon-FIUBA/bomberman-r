@@ -1,3 +1,4 @@
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Cell {
     Enemy(u8),
     Bomb(u8),
@@ -40,6 +41,7 @@ impl ToString for Cell {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
     Up,
     Down,
