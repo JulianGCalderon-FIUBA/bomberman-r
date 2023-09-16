@@ -11,6 +11,10 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn with_board(board: Board) -> Self {
+        Game { board }
+    }
+
     pub fn explode(&mut self, position: Position) -> Result<(), Error> {
         let cell_to_explode = self.board.get_cell(position)?;
 
@@ -72,31 +76,7 @@ impl Game {
         Ok(())
     }
 
-    fn board(&self) -> &Board {
+    pub fn board(&self) -> &Board {
         &self.board
-    }
-}
-
-impl TryFrom<&String> for Game {
-    type Error = Error;
-
-    fn try_from(s: &String) -> Result<Self, Self::Error> {
-        Game::try_from(s.as_str())
-    }
-}
-
-impl TryFrom<&str> for Game {
-    type Error = Error;
-
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        let board = Board::try_from(s)?;
-
-        Ok(Self { board })
-    }
-}
-
-impl ToString for Game {
-    fn to_string(&self) -> String {
-        self.board.to_string()
     }
 }

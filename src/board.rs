@@ -7,7 +7,7 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn get_cell(&mut self, position: Position) -> Result<Cell, Error> {
+    pub fn get_cell(&self, position: Position) -> Result<Cell, Error> {
         self.cells
             .get(position.y)
             .map(|row| row.get(position.x).cloned())
