@@ -7,7 +7,7 @@ use crate::position::Position;
 const BOMB_DAMAGE: u8 = 2;
 
 pub struct Game {
-    pub board: Board,
+    board: Board,
 }
 
 impl Game {
