@@ -1,78 +1,83 @@
 use crate::cell::Cell;
 use crate::direction::Direction;
+use crate::error::Error;
+use crate::position::Position;
 
 pub struct Board {
     pub cells: Vec<Vec<Cell>>,
 }
 
 impl Board {
-    pub fn explode(&mut self, x: usize, y: usize) {
-        let cell_to_explode = self.cells[y][x];
+    pub fn explode(&mut self, position: Position) -> Result<(), Error> {
+        let cell_to_explode = self.get_cell(position)?;
 
         match cell_to_explode {
-            Cell::Bomb(range) => self.explode_bomb(x, y, range, false),
-            Cell::PierceBomb(range) => self.explode_bomb(x, y, range, true),
-            Cell::Enemy(hp) => self.explode_enemy(x, y, hp),
+            Cell::Bomb(range) => self.explode_bomb(position, range, false),
+            Cell::PierceBomb(range) => self.explode_bomb(position, range, true),
+            Cell::Enemy(hp) => self.explode_enemy(position, hp),
             _ => (),
         }
+
+        Ok(())
     }
 
-    fn explode_bomb(&mut self, x: usize, y: usize, range: u8, pierce: bool) {
-        self.cells[y][x] = Cell::Empty;
+    fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
+        self.set_cell(position, Cell::Empty);
 
-        self.propagate_explosion(x, y, range, pierce, Direction::Up);
-        self.propagate_explosion(x, y, range, pierce, Direction::Down);
-        self.propagate_explosion(x, y, range, pierce, Direction::Left);
-        self.propagate_explosion(x, y, range, pierce, Direction::Right);
+        let _ = self.propagate_explosion(position, Direction::Up, range, pierce);
+        let _ = self.propagate_explosion(position, Direction::Down, range, pierce);
+        let _ = self.propagate_explosion(position, Direction::Left, range, pierce);
+        let _ = self.propagate_explosion(position, Direction::Right, range, pierce);
     }
 
     fn propagate_explosion(
         &mut self,
-        mut x: usize,
-        mut y: usize,
+        mut position: Position,
+        mut direction: Direction,
         range: u8,
         pierce: bool,
-        mut direction: Direction,
-    ) {
+    ) -> Result<(), Error> {
         if range == 0 {
-            return;
+            return Ok(());
         }
 
-        (x, y) = if let Some((x, y)) = direction.advance(x, y) {
-            (x, y)
-        } else {
-            return;
-        };
+        position = position.advance(direction)?;
 
-        let cell = if let Some(cell) = self.get_cell(y, x) {
-            cell
-        } else {
-            return;
-        };
+        self.explode(position)?;
 
-        self.explode(x, y);
+        let cell = self.get_cell(position)?;
 
         if Cell::Wall == cell || (Cell::Rock == cell && !pierce) {
-            return;
+            return Ok(());
         }
 
         if let Cell::Detour(detour_direction) = cell {
             direction = detour_direction
         }
 
-        self.propagate_explosion(x, y, range - 1, pierce, direction);
+        self.propagate_explosion(position, direction, range - 1, pierce)
     }
 
-    fn get_cell(&mut self, y: usize, x: usize) -> Option<Cell> {
-        self.cells.get(y).map(|row| row.get(x).cloned()).flatten()
-    }
+    fn explode_enemy(&mut self, position: Position, mut hp: u8) {
+        hp = hp.saturating_sub(2);
 
-    fn explode_enemy(&mut self, x: usize, y: usize, hp: u8) {
-        self.cells[y][x] = if hp == 1 || hp == 2 {
-            Cell::Empty
+        if hp == 0 {
+            self.set_cell(position, Cell::Empty);
         } else {
-            Cell::Enemy(hp - 2)
+            self.set_cell(position, Cell::Enemy(hp));
         }
+    }
+
+    fn get_cell(&mut self, position: Position) -> Result<Cell, Error> {
+        self.cells
+            .get(position.y)
+            .map(|row| row.get(position.x).cloned())
+            .flatten()
+            .ok_or(Error::OutOfBounds)
+    }
+
+    fn set_cell(&mut self, position: Position, cell: Cell) {
+        self.cells[position.y][position.x] = cell;
     }
 }
 

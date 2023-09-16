@@ -6,17 +6,6 @@ pub enum Direction {
     Right,
 }
 
-impl Direction {
-    pub fn advance(&self, x: usize, y: usize) -> Option<(usize, usize)> {
-        match self {
-            Direction::Up => Some((x, y.checked_sub(1)?)),
-            Direction::Down => Some((x, y + 1)),
-            Direction::Left => Some((x.checked_sub(1)?, y)),
-            Direction::Right => Some((x + 1, y)),
-        }
-    }
-}
-
 impl From<u8> for Direction {
     fn from(value: u8) -> Self {
         match value {

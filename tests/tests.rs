@@ -19,7 +19,7 @@ fn scene1_explosion() {
     let mut board = Board::from(&scene.initial);
     let solution = Board::from(&scene.solution);
 
-    board.explode(scene.bomb.0, scene.bomb.1);
+    board.explode(scene.bomb).expect("Tile should exist");
 
     assert_eq!(board.to_string(), solution.to_string());
 }
@@ -31,7 +31,7 @@ fn scene2_explosion() {
     let mut board = Board::from(&scene.initial);
     let solution = Board::from(&scene.solution);
 
-    board.explode(scene.bomb.0, scene.bomb.1);
+    board.explode(scene.bomb).expect("Tile should exist");
 
     assert_eq!(board.to_string(), solution.to_string());
 }
@@ -43,7 +43,7 @@ fn scene3_explosion() {
     let mut board = Board::from(&scene.initial);
     let solution = Board::from(&scene.solution);
 
-    board.explode(scene.bomb.0, scene.bomb.1);
+    board.explode(scene.bomb).expect("Tile should exist");
 
     assert_eq!(board.to_string(), solution.to_string());
 }

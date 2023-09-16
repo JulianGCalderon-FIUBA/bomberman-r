@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
 
+use bomberman_r::position::Position;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -11,11 +12,11 @@ struct InnerScene {
     bomb: (usize, usize),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct Scene {
     pub initial: String,
     pub solution: String,
-    pub bomb: (usize, usize),
+    pub bomb: Position,
 }
 
 impl Scene {
@@ -28,7 +29,10 @@ impl Scene {
         let scene = Scene {
             initial: inner_scene.initial.join("\n"),
             solution: inner_scene.solution.join("\n"),
-            bomb: inner_scene.bomb,
+            bomb: Position {
+                x: inner_scene.bomb.0,
+                y: inner_scene.bomb.1,
+            },
         };
 
         Ok(scene)
