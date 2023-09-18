@@ -3,4 +3,5 @@ pub enum Error {
     OutOfBounds,
     InvalidDirection,
     InvalidCell,
+    NotABomb,
 }

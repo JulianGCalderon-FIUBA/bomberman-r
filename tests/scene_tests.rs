@@ -13,7 +13,7 @@ fn test_scene(path: &str) {
     let solution = Board::from_str(&scene.solution).expect("Should be a valid game");
 
     let mut game = Game::with_board(board);
-    game.explode(scene.bomb).expect("Tile should exist");
+    game.trigger_bomb(scene.bomb).expect("Should be bomb");
 
     assert_eq!(game.board().to_string(), solution.to_string());
 }

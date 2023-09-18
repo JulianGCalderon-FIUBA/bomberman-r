@@ -17,6 +17,18 @@ impl Game {
         Game { board }
     }
 
+    pub fn trigger_bomb(&mut self, position: Position) -> Result<(), Error> {
+        let bomb = self.board.get_cell(position)?;
+
+        match bomb {
+            Cell::Bomb(range) => self.explode_bomb(position, range, false),
+            Cell::PierceBomb(range) => self.explode_bomb(position, range, true),
+            _ => return Err(Error::NotABomb),
+        }
+
+        Ok(())
+    }
+
     pub fn explode(&mut self, position: Position) -> Result<(), Error> {
         let cell_to_explode = self.board.get_cell(position)?;
 
