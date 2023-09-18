@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::board::Board;
 use crate::cell::Cell;
 use crate::direction::Direction;
@@ -41,39 +43,81 @@ impl Game {
     fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
         self.board.set_cell(position, Cell::Empty);
 
-        for direction in Direction::variants() {
-            let _ = self.propagate_explosion(position, direction, range, pierce);
-        }
+        let positions = self.propagate_explosion(position, range, pierce);
+
+        self.explode_positions(positions);
     }
 
     fn propagate_explosion(
         &mut self,
         position: Position,
-        direction: Direction,
         range: u8,
         pierce: bool,
-    ) -> Result<(), Error> {
-        if range == 0 {
-            return Ok(());
+    ) -> HashSet<Position> {
+        let mut affected_positions = HashSet::new();
+        for direction in Direction::variants() {
+            let new_affected_positions =
+                self.propagate_explosion_in_direction(position, direction, range, pierce);
+
+            affected_positions.extend(&new_affected_positions);
+        }
+        affected_positions
+    }
+
+    fn explode_positions(&mut self, positions: HashSet<Position>) {
+        for position in positions.into_iter() {
+            self.explode(position).expect("Should be valid position");
+        }
+    }
+
+    fn propagate_explosion_in_direction(
+        &self,
+        mut position: Position,
+        mut direction: Direction,
+        mut range: u8,
+        pierce: bool,
+    ) -> HashSet<Position> {
+        let mut positions = HashSet::new();
+
+        while range > 0 {
+            match self.advance_position(position, direction) {
+                Ok(new_position) => position = new_position,
+                Err(_) => break,
+            }
+
+            positions.insert(position);
+
+            let cell = self
+                .board
+                .get_cell(position)
+                .expect("Should be valid position");
+
+            if Cell::Wall == cell || (Cell::Rock == cell && !pierce) {
+                break;
+            }
+
+            if let Cell::Detour(new_direction) = cell {
+                direction = new_direction
+            }
+
+            range -= 1;
         }
 
+        positions
+    }
+
+    fn advance_position(
+        &self,
+        position: Position,
+        direction: Direction,
+    ) -> Result<Position, Error> {
         let position = position.advance(direction)?;
 
-        self.explode(position)?;
-
-        let cell = self.board.get_cell(position)?;
-
-        if Cell::Wall == cell || (Cell::Rock == cell && !pierce) {
-            return Ok(());
+        if position.x >= self.board.width() || position.y >= self.board.height() {
+            return Err(Error::OutOfBounds);
         }
 
-        if let Cell::Detour(new_direction) = cell {
-            let _ = self.propagate_explosion(position, new_direction, range - 1, pierce);
-        } else {
-            let _ = self.propagate_explosion(position, direction, range - 1, pierce);
-        }
-
-        Ok(())
+        Ok(position)
     }
 
     pub fn board(&self) -> &Board {

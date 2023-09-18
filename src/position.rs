@@ -1,7 +1,7 @@
 use crate::direction::Direction;
 use crate::error::Error;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct Position {
     pub x: usize,
     pub y: usize,

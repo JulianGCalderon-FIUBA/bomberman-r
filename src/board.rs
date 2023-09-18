@@ -18,6 +18,14 @@ impl Board {
     pub fn set_cell(&mut self, position: Position, cell: Cell) {
         self.cells[position.y][position.x] = cell;
     }
+
+    pub fn width(&self) -> usize {
+        self.cells.get(0).map_or(0, |row| row.len())
+    }
+
+    pub fn height(&self) -> usize {
+        self.cells.len()
+    }
 }
 
 impl TryFrom<&String> for Board {
