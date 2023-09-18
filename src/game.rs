@@ -29,7 +29,7 @@ impl Game {
         Ok(())
     }
 
-    pub fn explode(&mut self, position: Position) -> Result<(), Error> {
+    fn explode(&mut self, position: Position) -> Result<(), Error> {
         let cell_to_explode = self.board.get_cell(position)?;
 
         match cell_to_explode {
