@@ -1,5 +1,7 @@
 mod scene;
 
+use std::str::FromStr;
+
 use bomberman_r::board::Board;
 use bomberman_r::game::Game;
 use scene::Scene;
@@ -7,8 +9,8 @@ use scene::Scene;
 fn test_scene(path: &str) {
     let scene = Scene::from_file(path).expect("Could not load scene");
 
-    let board = Board::try_from(&scene.initial).expect("Should be a valid game");
-    let solution = Board::try_from(&scene.solution).expect("Should be a valid game");
+    let board = Board::from_str(&scene.initial).expect("Should be a valid game");
+    let solution = Board::from_str(&scene.solution).expect("Should be a valid game");
 
     let mut game = Game::with_board(board);
     game.explode(scene.bomb).expect("Tile should exist");

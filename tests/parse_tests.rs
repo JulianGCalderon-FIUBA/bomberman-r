@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Read;
+use std::str::FromStr;
 
 use bomberman_r::board::Board;
 
@@ -11,7 +12,7 @@ fn test_parse(path: &str) {
         .expect("Could not read file");
     let content = content.replace("\r\n", "\n");
 
-    let board = Board::try_from(&content).expect("Should be a valid game");
+    let board = Board::from_str(&content).expect("Should be a valid game");
 
     assert_eq!(board.to_string(), content);
 }

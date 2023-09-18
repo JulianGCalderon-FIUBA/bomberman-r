@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::cell::Cell;
 use crate::error::Error;
 use crate::position::Position;
@@ -28,18 +30,10 @@ impl Board {
     }
 }
 
-impl TryFrom<&String> for Board {
-    type Error = Error;
+impl FromStr for Board {
+    type Err = Error;
 
-    fn try_from(s: &String) -> Result<Self, Self::Error> {
-        Board::try_from(s.as_str())
-    }
-}
-
-impl TryFrom<&str> for Board {
-    type Error = Error;
-
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut cells = Vec::new();
 
         for line in s.as_bytes().split(|&b| b == b'\n') {
