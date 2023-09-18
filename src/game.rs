@@ -64,12 +64,6 @@ impl Game {
         affected_positions
     }
 
-    fn explode_positions(&mut self, positions: HashSet<Position>) {
-        for position in positions.into_iter() {
-            self.explode(position).expect("Should be valid position");
-        }
-    }
-
     fn propagate_explosion_in_direction(
         &self,
         mut position: Position,
@@ -104,6 +98,12 @@ impl Game {
         }
 
         positions
+    }
+
+    fn explode_positions(&mut self, positions: HashSet<Position>) {
+        for position in positions.into_iter() {
+            self.explode(position).expect("Should be valid position");
+        }
     }
 
     fn advance_position(
