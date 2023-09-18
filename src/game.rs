@@ -33,15 +33,15 @@ impl Game {
     fn explode_enemy(&mut self, position: Position, mut hp: u8) {
         hp = hp.saturating_sub(BOMB_DAMAGE);
 
-        if hp == 0 {
-            self.board
-                .set_cell(position, Cell::Empty)
-                .expect("Already Checked");
+        let new_cell = if hp == 0 {
+            Cell::Empty
         } else {
-            self.board
-                .set_cell(position, Cell::Enemy(hp))
-                .expect("Already Checked");
-        }
+            Cell::Enemy(hp)
+        };
+
+        self.board
+            .set_cell(position, new_cell)
+            .expect("Already Checked");
     }
 
     fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
