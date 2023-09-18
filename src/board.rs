@@ -12,13 +12,23 @@ impl Board {
     pub fn get_cell(&self, position: Position) -> Result<Cell, Error> {
         self.cells
             .get(position.y)
-            .map(|row| row.get(position.x).cloned())
-            .flatten()
+            .ok_or(Error::OutOfBounds)?
+            .get(position.x)
             .ok_or(Error::OutOfBounds)
+            .cloned()
     }
 
-    pub fn set_cell(&mut self, position: Position, cell: Cell) {
-        self.cells[position.y][position.x] = cell;
+    pub fn set_cell(&mut self, position: Position, cell: Cell) -> Result<(), Error> {
+        let old_cell = self
+            .cells
+            .get_mut(position.y)
+            .ok_or(Error::OutOfBounds)?
+            .get_mut(position.x)
+            .ok_or(Error::OutOfBounds)?;
+
+        *old_cell = cell;
+
+        Ok(())
     }
 
     pub fn width(&self) -> usize {

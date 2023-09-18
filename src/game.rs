@@ -34,14 +34,20 @@ impl Game {
         hp = hp.saturating_sub(BOMB_DAMAGE);
 
         if hp == 0 {
-            self.board.set_cell(position, Cell::Empty);
+            self.board
+                .set_cell(position, Cell::Empty)
+                .expect("Already Checked");
         } else {
-            self.board.set_cell(position, Cell::Enemy(hp));
+            self.board
+                .set_cell(position, Cell::Enemy(hp))
+                .expect("Already Checked");
         }
     }
 
     fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
-        self.board.set_cell(position, Cell::Empty);
+        self.board
+            .set_cell(position, Cell::Empty)
+            .expect("Already Checked");
 
         let positions = self.propagate_explosion(position, range, pierce);
 
@@ -111,7 +117,7 @@ impl Game {
         position: Position,
         direction: Direction,
     ) -> Result<Position, Error> {
-        let position = position.advance(direction)?;
+        let position = position.advance(direction);
 
         if position.x >= self.board.width() || position.y >= self.board.height() {
             return Err(Error::OutOfBounds);

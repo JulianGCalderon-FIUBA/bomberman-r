@@ -1,5 +1,4 @@
 use crate::direction::Direction;
-use crate::error::Error;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct Position {
@@ -8,14 +7,14 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn advance(mut self, direction: Direction) -> Result<Self, Error> {
+    pub fn advance(mut self, direction: Direction) -> Self {
         match direction {
-            Direction::Up => self.y = self.y.checked_sub(1).ok_or(Error::OutOfBounds)?,
+            Direction::Up => self.y = self.y.wrapping_sub(1),
             Direction::Down => self.y += 1,
-            Direction::Left => self.x = self.x.checked_sub(1).ok_or(Error::OutOfBounds)?,
+            Direction::Left => self.x = self.x.wrapping_sub(1),
             Direction::Right => self.x += 1,
         }
 
-        Ok(self)
+        self
     }
 }
