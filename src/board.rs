@@ -74,6 +74,7 @@ impl ToString for Board {
                 s.push_str(&cell.to_string());
                 s.push(' ');
             }
+
             s.pop();
             s.push('\n');
         }
