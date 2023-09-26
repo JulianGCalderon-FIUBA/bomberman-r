@@ -7,6 +7,10 @@ pub struct Position {
 }
 
 impl Position {
+    pub fn new(x: usize, y: usize) -> Self {
+        Self { x, y }
+    }
+
     pub fn advance(mut self, direction: Direction) -> Self {
         match direction {
             Direction::Up => self.y = self.y.wrapping_sub(1),
