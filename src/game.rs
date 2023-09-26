@@ -6,7 +6,7 @@ use crate::direction::Direction;
 use crate::error::Error;
 use crate::position::Position;
 
-const BOMB_DAMAGE: u8 = 2;
+const BOMB_DAMAGE: u8 = 1;
 
 pub struct Game {
     board: Board,

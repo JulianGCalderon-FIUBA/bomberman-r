@@ -1,6 +1,6 @@
-pub mod game;
+pub mod board;
 mod cell;
 mod direction;
 pub mod error;
+pub mod game;
 pub mod position;
-pub mod board;
