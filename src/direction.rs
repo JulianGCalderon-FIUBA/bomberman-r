@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::error::MyError;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -35,13 +37,13 @@ impl TryFrom<u8> for Direction {
     }
 }
 
-impl ToString for Direction {
-    fn to_string(&self) -> String {
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Direction::Up => "U".to_string(),
-            Direction::Down => "D".to_string(),
-            Direction::Left => "L".to_string(),
-            Direction::Right => "R".to_string(),
+            Direction::Up => write!(f, "U"),
+            Direction::Down => write!(f, "D"),
+            Direction::Left => write!(f, "L"),
+            Direction::Right => write!(f, "R"),
         }
     }
 }

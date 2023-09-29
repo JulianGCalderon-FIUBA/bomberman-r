@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::direction::Direction;
 use crate::error::MyError;
 
@@ -39,18 +41,18 @@ impl TryFrom<&[u8]> for Cell {
     }
 }
 
-impl ToString for Cell {
-    fn to_string(&self) -> String {
+impl Display for Cell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Cell::Enemy(hp) => format!("F{}", hp),
+            Cell::Enemy(hp) => write!(f, "F{}", hp),
             Cell::Bomb(range, kind) => match kind {
-                BombKind::Normal => format!("B{}", range),
-                BombKind::Pierce => format!("S{}", range),
+                BombKind::Normal => write!(f, "B{}", range),
+                BombKind::Pierce => write!(f, "S{}", range),
             },
-            Cell::Detour(direction) => format!("D{}", direction.to_string()),
-            Cell::Rock => "R".to_string(),
-            Cell::Wall => "W".to_string(),
-            Cell::Empty => "_".to_string(),
+            Cell::Detour(direction) => write!(f, "D{}", direction),
+            Cell::Rock => write!(f, "R"),
+            Cell::Wall => write!(f, "W"),
+            Cell::Empty => write!(f, "_"),
         }
     }
 }

@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -70,20 +71,24 @@ impl FromStr for Board {
     }
 }
 
-impl ToString for Board {
-    fn to_string(&self) -> String {
-        let mut s = String::new();
-
+impl Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for row in &self.cells {
-            for cell in row {
-                s.push_str(&cell.to_string());
-                s.push(' ');
+            let mut row_iter = row.iter();
+
+            if let Some(first) = row_iter.next() {
+                write!(f, "{}", first)?;
+            } else {
+                continue;
             }
 
-            s.pop();
-            s.push('\n');
+            for element in row_iter {
+                write!(f, " {}", element)?;
+            }
+
+            writeln!(f)?;
         }
 
-        s
+        Ok(())
     }
 }
