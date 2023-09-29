@@ -15,7 +15,7 @@ impl Board {
     pub fn from_file(path: &Path) -> MyResult<Self> {
         let content = read_from_file(path)?;
 
-        Board::from_str(&content)
+        content.parse()
     }
 
     pub fn get_cell(&self, position: Position) -> Cell {
