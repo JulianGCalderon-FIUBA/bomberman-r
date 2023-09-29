@@ -52,15 +52,11 @@ impl FromStr for Board {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut cells = Vec::new();
 
-        for line in s.as_bytes().split(|&b| b == b'\n') {
-            if line.is_empty() {
-                continue;
-            }
-
+        for line in s.lines() {
             let mut row = Vec::new();
 
-            for ascii_cell in line.split(|&b| b == b' ') {
-                let cell = Cell::try_from(ascii_cell)?;
+            for element in line.split_whitespace() {
+                let cell = Cell::from_str(element)?;
                 row.push(cell);
             }
 

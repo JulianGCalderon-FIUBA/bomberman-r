@@ -1,7 +1,8 @@
 use std::fmt::Display;
+use std::str::FromStr;
 
 use crate::direction::Direction;
-use crate::error::MyError;
+use crate::error::{MyError, MyResult};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum BombKind {
@@ -39,6 +40,34 @@ impl TryFrom<&[u8]> for Cell {
 
         Ok(cell)
     }
+}
+
+impl FromStr for Cell {
+    type Err = MyError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut s = s.chars();
+
+        let x = s.next().ok_or(MyError::InvalidCell)?;
+        let y = s.next();
+
+        let cell = match (x, y) {
+            ('R', _) => Cell::Rock,
+            ('W', _) => Cell::Wall,
+            ('_', _) => Cell::Empty,
+            ('F', Some(y)) => Cell::Enemy(char_to_digit(y)?),
+            ('B', Some(y)) => Cell::Bomb(char_to_digit(y)?, BombKind::Normal),
+            ('S', Some(y)) => Cell::Bomb(char_to_digit(y)?, BombKind::Pierce),
+            ('D', Some(y)) => Cell::Detour(Direction::try_from(y)?),
+            _ => Err(MyError::InvalidCell)?,
+        };
+
+        Ok(cell)
+    }
+}
+
+fn char_to_digit(c: char) -> MyResult<u8> {
+    c.to_digit(10).map(|d| d as u8).ok_or(MyError::InvalidCell)
 }
 
 impl Display for Cell {

@@ -37,6 +37,22 @@ impl TryFrom<u8> for Direction {
     }
 }
 
+impl TryFrom<char> for Direction {
+    type Error = MyError;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        let direction = match value {
+            'D' => Direction::Down,
+            'U' => Direction::Up,
+            'L' => Direction::Left,
+            'R' => Direction::Right,
+            _ => Err(MyError::InvalidDirection)?,
+        };
+
+        Ok(direction)
+    }
+}
+
 impl Display for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
