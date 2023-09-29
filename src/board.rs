@@ -39,7 +39,9 @@ impl Board {
 
     pub fn to_file(&self, output_path: &Path) -> Result<(), MyError> {
         let output = self.to_string();
-        write_to_file(output_path, &output)
+        write_to_file(output_path, &output)?;
+
+        Ok(())
     }
 }
 

@@ -20,12 +20,12 @@ impl From<io::Error> for MyError {
 impl Display for MyError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::OutOfBounds => write!(f, "ERROR: Out of bounds"),
-            Self::InvalidDirection => write!(f, "ERROR: Invalid direction"),
-            Self::InvalidCell => write!(f, "ERROR: Invalid cell"),
-            Self::NotABomb => write!(f, "ERROR: Not a bomb"),
-            Self::InvalidArguments => write!(f, "ERROR: Invalid arguments"),
-            Self::IoError(ref error) => write!(f, "ERROR: IO error: {}", error),
+            Self::OutOfBounds => write!(f, "Out of bounds"),
+            Self::InvalidDirection => write!(f, "Invalid direction"),
+            Self::InvalidCell => write!(f, "Invalid cell"),
+            Self::NotABomb => write!(f, "Not a bomb"),
+            Self::InvalidArguments => write!(f, "Invalid arguments"),
+            Self::IoError(ref error) => write!(f, "IO error: {}", error),
         }
     }
 }

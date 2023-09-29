@@ -10,7 +10,7 @@ pub fn main() {
     let arguments = match Arguments::collect() {
         Ok(arguments) => arguments,
         Err(error) => {
-            eprintln!("ERROR: {}", error);
+            eprintln!("Invalid Arguments: {}", error);
             return;
         }
     };
@@ -18,8 +18,10 @@ pub fn main() {
     let output_path = arguments.output_path.clone();
 
     if let Err(error) = try_main(arguments) {
-        if let Err(error) = write_to_file(&output_path, &error.to_string()) {
-            eprintln!("ERROR: {}", error);
+        let error_message = format!("ERROR: {}", error);
+        if let Err(error) = write_to_file(&output_path, &error_message) {
+            eprintln!("Could not write error to output: {}", error);
+            eprintln!("{}", error_message);
         }
     }
 }
