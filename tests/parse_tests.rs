@@ -1,18 +1,11 @@
-use std::fs::File;
-use std::io::Read;
-use std::str::FromStr;
+use std::path::Path;
 
 use bomberman_r::board::Board;
+use bomberman_r::io::read_from_file;
 
-fn test_parse(path: &str) {
-    let mut file = File::open(path).expect("Could not open file");
-
-    let mut content = String::new();
-    file.read_to_string(&mut content)
-        .expect("Could not read file");
-    let content = content.replace("\r\n", "\n");
-
-    let board = Board::from_str(&content).expect("Should be a valid game");
+fn test_parse<P: AsRef<Path>>(path: P) {
+    let content = read_from_file(path).expect("Couldn't read file");
+    let board: Board = content.parse().expect("Should be a valid game");
 
     assert_eq!(board.to_string(), content);
 }
