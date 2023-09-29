@@ -27,11 +27,11 @@ impl Board {
     }
 
     pub fn contains(&self, position: Position) -> bool {
-        return position.x < self.width() && position.y < self.height();
-    }
+        if position.y >= self.height() {
+            return false;
+        }
 
-    pub fn width(&self) -> usize {
-        self.cells.get(0).map_or(0, |row| row.len())
+        return position.x < self.cells[position.y].len();
     }
 
     pub fn height(&self) -> usize {
