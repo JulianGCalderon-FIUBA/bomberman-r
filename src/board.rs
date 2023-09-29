@@ -2,7 +2,7 @@ use std::path::Path;
 use std::str::FromStr;
 
 use crate::cell::Cell;
-use crate::error::{Error, MyResult};
+use crate::error::{MyError, MyResult};
 use crate::io::{read_from_file, write_to_file};
 use crate::position::Position;
 
@@ -37,14 +37,14 @@ impl Board {
         self.cells.len()
     }
 
-    pub fn to_file(&self, output_path: &Path) -> Result<(), Error> {
+    pub fn to_file(&self, output_path: &Path) -> Result<(), MyError> {
         let output = self.to_string();
         write_to_file(output_path, &output)
     }
 }
 
 impl FromStr for Board {
-    type Err = Error;
+    type Err = MyError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut cells = Vec::new();

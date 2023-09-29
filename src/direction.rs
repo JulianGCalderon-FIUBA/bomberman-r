@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::error::MyError;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
@@ -20,7 +20,7 @@ impl Direction {
 }
 
 impl TryFrom<u8> for Direction {
-    type Error = Error;
+    type Error = MyError;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         let direction = match value {
@@ -28,7 +28,7 @@ impl TryFrom<u8> for Direction {
             b'D' => Direction::Down,
             b'L' => Direction::Left,
             b'R' => Direction::Right,
-            _ => Err(Error::InvalidDirection)?,
+            _ => Err(MyError::InvalidDirection)?,
         };
 
         Ok(direction)

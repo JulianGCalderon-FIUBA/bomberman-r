@@ -1,5 +1,5 @@
 use crate::direction::Direction;
-use crate::error::Error;
+use crate::error::MyError;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum BombKind {
@@ -18,7 +18,7 @@ pub enum Cell {
 }
 
 impl TryFrom<&[u8]> for Cell {
-    type Error = Error;
+    type Error = MyError;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         let x = value[0];
@@ -32,7 +32,7 @@ impl TryFrom<&[u8]> for Cell {
             (b'B', Some(y)) => Cell::Bomb(y - b'0', BombKind::Normal),
             (b'S', Some(y)) => Cell::Bomb(y - b'0', BombKind::Pierce),
             (b'D', Some(y)) => Cell::Detour(Direction::try_from(y)?),
-            _ => Err(Error::InvalidCell)?,
+            _ => Err(MyError::InvalidCell)?,
         };
 
         Ok(cell)

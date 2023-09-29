@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::board::Board;
 use crate::cell::{BombKind, Cell};
 use crate::direction::Direction;
-use crate::error::Error;
+use crate::error::MyError;
 use crate::position::Position;
 
 const BOMB_DAMAGE: u8 = 1;
@@ -17,24 +17,24 @@ impl Game {
         Game { board }
     }
 
-    pub fn trigger_bomb(&mut self, position: Position) -> Result<(), Error> {
+    pub fn trigger_bomb(&mut self, position: Position) -> Result<(), MyError> {
         if !self.board.contains(position) {
-            return Err(Error::OutOfBounds);
+            return Err(MyError::OutOfBounds);
         }
 
         let cell = self.board.get_cell(position);
 
         match cell {
             Cell::Bomb(range, kind) => self.explode_bomb(position, range, kind),
-            _ => return Err(Error::NotABomb),
+            _ => return Err(MyError::NotABomb),
         }
 
         Ok(())
     }
 
-    fn explode(&mut self, position: Position) -> Result<(), Error> {
+    fn explode(&mut self, position: Position) -> Result<(), MyError> {
         if !self.board.contains(position) {
-            return Err(Error::OutOfBounds);
+            return Err(MyError::OutOfBounds);
         }
 
         let cell_to_explode = self.board.get_cell(position);
@@ -127,11 +127,11 @@ impl Game {
         &self,
         position: Position,
         direction: Direction,
-    ) -> Result<Position, Error> {
+    ) -> Result<Position, MyError> {
         let position = position.advance(direction);
 
         if position.x >= self.board.width() || position.y >= self.board.height() {
-            return Err(Error::OutOfBounds);
+            return Err(MyError::OutOfBounds);
         }
 
         Ok(position)
