@@ -32,34 +32,6 @@ impl Game {
         Ok(())
     }
 
-    fn explode(&mut self, position: Position) -> Result<(), MyError> {
-        if !self.board.contains(position) {
-            return Err(MyError::OutOfBounds);
-        }
-
-        let cell_to_explode = self.board.get_cell(position);
-
-        match cell_to_explode {
-            Cell::Enemy(hp) => self.explode_enemy(position, hp),
-            Cell::Bomb(range, kind) => self.explode_bomb(position, range, kind),
-            _ => (),
-        }
-
-        Ok(())
-    }
-
-    fn explode_enemy(&mut self, position: Position, mut hp: u8) {
-        hp = hp.saturating_sub(BOMB_DAMAGE);
-
-        let new_cell = if hp == 0 {
-            Cell::Empty
-        } else {
-            Cell::Enemy(hp)
-        };
-
-        self.board.set_cell(position, new_cell);
-    }
-
     fn explode_bomb(&mut self, position: Position, range: u8, kind: BombKind) {
         self.board.set_cell(position, Cell::Empty);
 
@@ -119,8 +91,30 @@ impl Game {
 
     fn explode_positions(&mut self, positions: HashSet<Position>) {
         for position in positions.into_iter() {
-            self.explode(position).expect("Should be valid position");
+            self.explode(position);
         }
+    }
+
+    fn explode(&mut self, position: Position) {
+        let cell_to_explode = self.board.get_cell(position);
+
+        match cell_to_explode {
+            Cell::Enemy(hp) => self.explode_enemy(position, hp),
+            Cell::Bomb(range, kind) => self.explode_bomb(position, range, kind),
+            _ => (),
+        }
+    }
+
+    fn explode_enemy(&mut self, position: Position, mut hp: u8) {
+        hp = hp.saturating_sub(BOMB_DAMAGE);
+
+        let new_cell = if hp == 0 {
+            Cell::Empty
+        } else {
+            Cell::Enemy(hp)
+        };
+
+        self.board.set_cell(position, new_cell);
     }
 
     fn advance_position(
@@ -130,7 +124,7 @@ impl Game {
     ) -> Result<Position, MyError> {
         let position = position.advance(direction);
 
-        if position.x >= self.board.width() || position.y >= self.board.height() {
+        if !self.board.contains(position) {
             return Err(MyError::OutOfBounds);
         }
 

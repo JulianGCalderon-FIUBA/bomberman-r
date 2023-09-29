@@ -20,7 +20,7 @@ pub fn main() {
     if let Err(error) = try_main(arguments) {
         let error_message = format!("ERROR: {}", error);
         if let Err(error) = write_to_file(&output_path, &error_message) {
-            eprintln!("Could not write error to output: {}", error);
+            eprintln!("Could not write error to file: {}", error);
             eprintln!("{}", error_message);
         }
     }

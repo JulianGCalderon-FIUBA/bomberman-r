@@ -25,7 +25,7 @@ impl Board {
         self.cells[position.y][position.x] = cell;
     }
 
-    pub fn contains(&mut self, position: Position) -> bool {
+    pub fn contains(&self, position: Position) -> bool {
         return position.x < self.width() && position.y < self.height();
     }
 
