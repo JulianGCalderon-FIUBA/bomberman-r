@@ -1,14 +1,10 @@
-use std::fs::File;
-use std::io::{Read, Write};
-use std::path::Path;
-use std::str::FromStr;
-
+use arguments::Arguments;
 use bomberman_r::board::Board;
 use bomberman_r::error::MyResult;
 use bomberman_r::game::Game;
-use configuration::Arguments;
+use bomberman_r::io::write_to_file;
 
-pub mod configuration;
+mod arguments;
 
 pub fn main() {
     let arguments = match Arguments::collect() {
@@ -29,25 +25,10 @@ pub fn main() {
 }
 
 fn try_main(arguments: Arguments) -> MyResult<()> {
-    let mut file = File::open(arguments.board_path)?;
-
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
-
-    let board = Board::from_str(&content)?;
+    let board = Board::from_file(&arguments.board_path)?;
     let mut game = Game::with_board(board);
 
     game.trigger_bomb(arguments.bomb_position)?;
 
-    let output = game.board().to_string();
-    write_to_file(&arguments.output_path, &output)?;
-
-    Ok(())
-}
-
-fn write_to_file(path: &Path, content: &str) -> MyResult<()> {
-    let mut file = File::create(path)?;
-    file.write_all(content.as_bytes())?;
-
-    Ok(())
+    game.board().to_file(&arguments.output_path)
 }

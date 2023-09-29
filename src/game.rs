@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::board::Board;
-use crate::cell::Cell;
+use crate::cell::{BombKind, Cell};
 use crate::direction::Direction;
 use crate::error::Error;
 use crate::position::Position;
@@ -18,11 +18,14 @@ impl Game {
     }
 
     pub fn trigger_bomb(&mut self, position: Position) -> Result<(), Error> {
-        let bomb = self.board.get_cell(position)?;
+        if !self.board.contains(position) {
+            return Err(Error::OutOfBounds);
+        }
 
-        match bomb {
-            Cell::Bomb(range) => self.explode_bomb(position, range, false),
-            Cell::PierceBomb(range) => self.explode_bomb(position, range, true),
+        let cell = self.board.get_cell(position);
+
+        match cell {
+            Cell::Bomb(range, kind) => self.explode_bomb(position, range, kind),
             _ => return Err(Error::NotABomb),
         }
 
@@ -30,12 +33,15 @@ impl Game {
     }
 
     fn explode(&mut self, position: Position) -> Result<(), Error> {
-        let cell_to_explode = self.board.get_cell(position)?;
+        if !self.board.contains(position) {
+            return Err(Error::OutOfBounds);
+        }
+
+        let cell_to_explode = self.board.get_cell(position);
 
         match cell_to_explode {
             Cell::Enemy(hp) => self.explode_enemy(position, hp),
-            Cell::Bomb(range) => self.explode_bomb(position, range, false),
-            Cell::PierceBomb(range) => self.explode_bomb(position, range, true),
+            Cell::Bomb(range, kind) => self.explode_bomb(position, range, kind),
             _ => (),
         }
 
@@ -51,17 +57,13 @@ impl Game {
             Cell::Enemy(hp)
         };
 
-        self.board
-            .set_cell(position, new_cell)
-            .expect("Already Checked");
+        self.board.set_cell(position, new_cell);
     }
 
-    fn explode_bomb(&mut self, position: Position, range: u8, pierce: bool) {
-        self.board
-            .set_cell(position, Cell::Empty)
-            .expect("Already Checked");
+    fn explode_bomb(&mut self, position: Position, range: u8, kind: BombKind) {
+        self.board.set_cell(position, Cell::Empty);
 
-        let positions = self.propagate_explosion(position, range, pierce);
+        let positions = self.propagate_explosion(position, range, kind);
 
         self.explode_positions(positions);
     }
@@ -70,12 +72,12 @@ impl Game {
         &mut self,
         position: Position,
         range: u8,
-        pierce: bool,
+        kind: BombKind,
     ) -> HashSet<Position> {
         let mut affected_positions = HashSet::new();
         for direction in Direction::variants() {
             let new_affected_positions =
-                self.propagate_explosion_in_direction(position, direction, range, pierce);
+                self.propagate_explosion_in_direction(position, direction, range, kind);
 
             affected_positions.extend(&new_affected_positions);
         }
@@ -87,7 +89,7 @@ impl Game {
         mut position: Position,
         mut direction: Direction,
         mut range: u8,
-        pierce: bool,
+        kind: BombKind,
     ) -> HashSet<Position> {
         let mut positions = HashSet::new();
 
@@ -99,12 +101,9 @@ impl Game {
 
             positions.insert(position);
 
-            let cell = self
-                .board
-                .get_cell(position)
-                .expect("Should be valid position");
+            let cell = self.board.get_cell(position);
 
-            if Cell::Wall == cell || (Cell::Rock == cell && !pierce) {
+            if Cell::Wall == cell || (Cell::Rock == cell && kind == BombKind::Normal) {
                 break;
             }
 

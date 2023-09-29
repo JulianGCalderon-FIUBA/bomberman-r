@@ -1,7 +1,9 @@
+use std::path::Path;
 use std::str::FromStr;
 
 use crate::cell::Cell;
-use crate::error::Error;
+use crate::error::{Error, MyResult};
+use crate::io::{read_from_file, write_to_file};
 use crate::position::Position;
 
 pub struct Board {
@@ -9,26 +11,22 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn get_cell(&self, position: Position) -> Result<Cell, Error> {
-        self.cells
-            .get(position.y)
-            .ok_or(Error::OutOfBounds)?
-            .get(position.x)
-            .ok_or(Error::OutOfBounds)
-            .cloned()
+    pub fn from_file(path: &Path) -> MyResult<Self> {
+        let content = read_from_file(path)?;
+
+        Board::from_str(&content)
     }
 
-    pub fn set_cell(&mut self, position: Position, cell: Cell) -> Result<(), Error> {
-        let old_cell = self
-            .cells
-            .get_mut(position.y)
-            .ok_or(Error::OutOfBounds)?
-            .get_mut(position.x)
-            .ok_or(Error::OutOfBounds)?;
+    pub fn get_cell(&self, position: Position) -> Cell {
+        self.cells[position.y][position.x]
+    }
 
-        *old_cell = cell;
+    pub fn set_cell(&mut self, position: Position, cell: Cell) {
+        self.cells[position.y][position.x] = cell;
+    }
 
-        Ok(())
+    pub fn contains(&mut self, position: Position) -> bool {
+        return position.x < self.width() && position.y < self.height();
     }
 
     pub fn width(&self) -> usize {
@@ -37,6 +35,11 @@ impl Board {
 
     pub fn height(&self) -> usize {
         self.cells.len()
+    }
+
+    pub fn to_file(&self, output_path: &Path) -> Result<(), Error> {
+        let output = self.to_string();
+        write_to_file(output_path, &output)
     }
 }
 
