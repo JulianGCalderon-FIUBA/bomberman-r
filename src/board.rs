@@ -18,10 +18,12 @@ impl Board {
         content.parse()
     }
 
+    /// Panics if position is not contained in board.
     pub fn get_cell(&self, position: Position) -> Cell {
         self.cells[position.y][position.x]
     }
 
+    /// Panics if position is not contained in board.
     pub fn set_cell(&mut self, position: Position, cell: Cell) {
         self.cells[position.y][position.x] = cell;
     }
