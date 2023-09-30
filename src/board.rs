@@ -33,7 +33,7 @@ impl Board {
             return false;
         }
 
-        return position.x < self.cells[position.y].len();
+        position.x < self.cells[position.y].len()
     }
 
     pub fn height(&self) -> usize {
