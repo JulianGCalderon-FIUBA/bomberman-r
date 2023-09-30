@@ -34,3 +34,8 @@ fn scene3() {
 fn scene4() {
     test_scene("scenes/scene4.json");
 }
+
+#[test]
+fn scene5() {
+    test_scene("scenes/scene5.json");
+}
